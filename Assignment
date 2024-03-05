@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bitcoin Price Tracker</title>
+  <style>
+    /* Your CSS styles here */
+  </style>
+</head>
+<body>
+  <div id="bitcoin-price"></div>
+  <div id="trending-coins"></div>
+  <div id="you-may-like"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchBitcoinPrice();
+      fetchTrendingCoins();
+    });
+
+    async function fetchBitcoinPrice() {
+      try {
+        const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd,inr&include_24hr_change=true");
+        const data = await response.json();
+        const bitcoinData = data.bitcoin;
+        const priceUSD = bitcoinData.usd;
+        const priceINR = bitcoinData.inr;
+        const changeUSD = bitcoinData.usd_24h_change;
+
+        const bitcoinPriceElement = document.getElementById("bitcoin-price");
+        bitcoinPriceElement.innerHTML = `
+          <h2>Bitcoin Price</h2>
+          <p>Price in USD: ${priceUSD}</p>
+          <p>Price in INR: ${priceINR}</p>
+          <p>24H Change: ${changeUSD}%</p>
+        `;
+      } catch (error) {
+        console.error("Error fetching Bitcoin price:", error);
+      }
+    }
+
+    async function fetchTrendingCoins() {
+      try {
+        const response = await fetch("https://api.coingecko.com/api/v3/search/trending");
+        const data = await response.json();
+        const trendingCoins = data.coins.slice(0, 3);
+
+        const trendingCoinsElement = document.getElementById("trending-coins");
+        trendingCoinsElement.innerHTML = `
+          <h2>Trending Coins (24h)</h2>
+          <ul>
+            ${trendingCoins.map(coin => `<li>${coin.item.name}</li>`).join("")}
+          </ul>
+        `;
+      } catch (error) {
+        console.error("Error fetching trending coins:", error);
+      }
+    }
+  </script>
+</body>
+</html>
